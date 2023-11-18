@@ -35,24 +35,28 @@
         state: present
         filename: azlux.list
 
+    - name: Apt update
+      become: true
+      apt:
+        update_cache: true
+
     - name: Install APT packages
       apt:
-        pkg: 
-          - xfce4
-          - lightdm-autologin-greeter
-          - zsh
-          - btop
-          - tightvncserver
-          - log2ram
-          - xfce4-power-manager
+        name: "{{ item }}"
         state: present
-        update_cache: true
       become: true
+      loop: 
+        - xfce4
+        - lightdm-autologin-greeter
+        - tightvncserver
+        - log2ram
+        - xfce4-power-manager
+        - network-manager
 
     - name: Install netplan config
       ansible.builtin.template:
-        src: ./files/01-netcfg.yaml.j2
-        dest: /etc/netplan/01-netcfg.yaml
+        src: ./files/50-cloud-init.yaml.j2
+        dest: /etc/netplan/50-cloud-init.yaml
       become: true
 
     - name: Apply netplan config
