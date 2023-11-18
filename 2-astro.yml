@@ -1,4 +1,4 @@
-- name: Install astro pkg on Reterminal
+- name: Install astro pkg
   gather_facts: false
   hosts: all
   tasks:
@@ -18,12 +18,17 @@
         - ppa:mutlaqja/ppa
         - ppa:pch/phd2
 
+    - name: Update apt cache
+      become: true
+      apt:
+        update_cache: yes
+        
     - name: Install astro pkg
       become: true
       apt:
-        pkg: 
+        pkg: "{{ item }}"
+        state: present
+      loop:
           - kstars-bleeding
           - indi-full
           - phd2
-        state: present
-        update_cache: true
