@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=astroqtpy
+Comment=
+Exec=python3 main.py
+Icon=
+Path=/home/julien/astroqtpy
+Terminal=false
+StartupNotify=false

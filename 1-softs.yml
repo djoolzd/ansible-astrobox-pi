@@ -1,0 +1,106 @@
+---
+- name: Install Ubuntu on Reterminal
+  gather_facts: true
+  hosts: all
+  pre_tasks:
+    - name: Get vars
+      ansible.builtin.include_vars:
+        file: vars.yml
+  tasks:
+    - name: Get the current user
+      command: whoami
+      register: whoami
+    
+    - set_fact:
+        ansible_user: "{{ whoami.stdout }}"
+
+    - name: "Install Oh My Zsh"
+      ansible.builtin.import_role:
+        name: gantsign.oh-my-zsh
+      vars:
+        oh_my_zsh_theme: candy
+        users:
+          - username: "{{ ansible_user }}"
+    
+    - name: Add log2ram gpg key
+      shell: 
+        cmd: >
+          curl -fsSL https://azlux.fr/repo.gpg | gpg --dearmor --yes -o /usr/share/keyrings/azlux-archive-keyring.gpg
+      become: true
+
+    - name: Add log2ram apt repository
+      become: true
+      apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/azlux-archive-keyring.gpg] http://packages.azlux.fr/debian/ buster main
+        state: present
+        filename: azlux.list
+
+    - name: Install APT packages
+      apt:
+        pkg: 
+          - xfce4
+          - lightdm-autologin-greeter
+          - zsh
+          - btop
+          - tightvncserver
+          - log2ram
+          - xfce4-power-manager
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Install netplan config
+      ansible.builtin.template:
+        src: ./files/01-netcfg.yaml.j2
+        dest: /etc/netplan/01-netcfg.yaml
+      become: true
+
+    - name: Apply netplan config
+      ansible.builtin.command: |
+        netplan generate
+        netplan apply
+      become: true
+    
+    - name: mkdir .vnc
+      ansible.builtin.file:
+        path: /home/{{ ansible_user }}/.vnc
+        state: directory
+
+    - name: Créer le script de démarrage pour VNC
+      copy:
+        src: ./files/xstartup
+        dest: "/home/{{ ansible_user  }}/.vnc/xstartup"
+        mode: '0755'
+
+    - name: Configurer un mot de passe VNC pour l'utilisateur (À adapter selon vos besoins)
+      become: false
+      expect:
+        command: vncpasswd
+        responses:
+          Password: "{{ vnc_password }}"
+          "Verify:": "{{ vnc_password }}"
+          "Would you like to enter a view-only password (y/n)?": "n"
+
+    - name: Upload vncserver service file
+      become: true
+      ansible.builtin.template:
+        src: ./files/vncserver.service.j2
+        dest: /etc/systemd/system/vncserver.service
+
+    - name: launch vncserver
+      become: true
+      systemd:
+        name: vncserver
+        state: restarted
+        enabled: true
+        daemon_reload: true
+
+    - name: Systemd daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+
+    - name: Reboot
+      reboot:
+        reboot_timeout: 120
+      become: true

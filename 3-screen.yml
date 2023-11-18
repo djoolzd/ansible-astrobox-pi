@@ -1,0 +1,38 @@
+---
+- name: Install MHS 3.5 inch screen
+  hosts: all
+  gather_facts: false
+  tasks:
+  
+    - name: git clone https://github.com/lcdwiki/LCD-show-ubuntu.git
+      ansible.builtin.git:
+        repo: https://github.com/lcdwiki/LCD-show-ubuntu.git
+        dest: ~/LCD-show-ubuntu
+        force: true
+
+    - name: Remove 'sudo reboot' line in ./MHS35-show
+      become: true
+      ansible.builtin.replace:
+        path: LCD-show-ubuntu/MHS35-show
+        regexp: 'sudo reboot'
+        replace: ''
+      
+    - name: chmod -R 755 LCD-show-ubuntu
+      become: true
+      ansible.builtin.file:
+        path: LCD-show-ubuntu
+        mode: 0755
+        recurse: true
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+
+    - name: sudo ./MHS35-show
+      become: true
+      ansible.builtin.command: ./MHS35-show
+      args:
+        chdir: LCD-show-ubuntu
+
+    - name: Reboot
+      reboot:
+        reboot_timeout: 120
+      become: true

@@ -1,0 +1,21 @@
+network:
+  version: 2
+  renderer: NetworkManager
+  ethernets:
+    eth0:
+      dhcp4: true
+      optional: true
+  wifis:
+    wlan0:
+      dhcp4: no
+      optional: true
+      addresses: [ "{{ dhcp_range }}" ]
+      access-points:
+        "{{ ap_ssid }}":
+          password: "{{ ap_password }}"
+          mode: ap
+    wlan0:
+      dhcp4: true
+      access-points:
+        "{{ client_ssid }}":
+          password: "{{ client_password }}"

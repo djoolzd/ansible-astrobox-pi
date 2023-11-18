@@ -1,0 +1,12 @@
+[Unit]
+Description=Start TightVNC server at startup
+After=syslog.target network.target
+
+[Service]
+Type=forking
+User={{ ansible_user }}
+ExecStart=/usr/bin/tightvncserver -depth 24 -geometry 1280x800 :1
+ExecStop=killall Xtightvnc;
+
+[Install]
+WantedBy=multi-user.target

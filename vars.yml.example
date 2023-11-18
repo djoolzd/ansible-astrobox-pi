@@ -1,0 +1,13 @@
+---
+# WIFI
+## AP mode
+ap_ssid: ap_ssid
+ap_password: ap_password
+dhcp_range: 192.168.10.1/24
+
+## Client mode
+client_ssid: ssid_name
+client_password: wifi_password
+
+# VNC
+vnc_password: vnc_password
