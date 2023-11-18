@@ -50,7 +50,6 @@
         - lightdm-autologin-greeter
         - tightvncserver
         - log2ram
-        - xfce4-power-manager
         - network-manager
 
     - name: Install netplan config
