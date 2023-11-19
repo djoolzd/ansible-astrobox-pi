@@ -1,6 +1,10 @@
 - name: Install astro pkg
   gather_facts: false
   hosts: all
+  pre_tasks:
+    - name: Get vars
+      ansible.builtin.include_vars:
+        file: vars.yml
   tasks:
     - name: Get the current user
       command: whoami
@@ -32,3 +36,13 @@
           - kstars-bleeding
           - indi-full
           - phd2
+
+    - name: Install astrometry.net
+      become: true
+      apt:
+        pkg: "{{ item }}"
+        state: present
+      loop:
+        - astrometry.net
+        - astrometry-data-2mass-08-19
+      when: install_offline_astrometry

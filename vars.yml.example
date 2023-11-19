@@ -11,3 +11,6 @@ client_password: wifi_password
 
 # VNC
 vnc_password: vnc_password
+
+# Offline astrometry
+install_offline_astrometry: false
